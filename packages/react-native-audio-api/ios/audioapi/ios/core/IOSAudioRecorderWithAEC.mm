@@ -123,7 +123,7 @@ void IOSAudioRecorderWithAEC::setVoiceProcessingBypassed(bool bypassed)
   voiceProcessingBypassed_.store(bypassed);
 
   if (inputNode_) {
-    inputNode_.isVoiceProcessingBypassed = bypassed;
+    [inputNode_ setVoiceProcessingBypassed:bypassed];
   }
 }
 
@@ -132,7 +132,7 @@ void IOSAudioRecorderWithAEC::setInputMuted(bool muted)
   inputMuted_.store(muted);
 
   if (inputNode_) {
-    inputNode_.isVoiceProcessingInputMuted = muted;
+    [inputNode_ setVoiceProcessingInputMuted:muted];
   }
 }
 
@@ -208,14 +208,18 @@ void IOSAudioRecorderWithAEC::setupAudioEngine()
   }
 
   // Set initial input muting state
-  inputNode_.isVoiceProcessingInputMuted = !isRecording_.load();
+  [inputNode_ setVoiceProcessingInputMuted:!isRecording_.load()];
 
   // Install tap on input node for microphone processing
+  __weak IOSAudioRecorderWithAEC *weakSelf = this;
   [inputNode_ installTapOnBus:0
                    bufferSize:1024
                        format:voiceIOFormat_
                         block:^(AVAudioPCMBuffer *buffer, AVAudioTime *when) {
-                          [self processMicrophoneBuffer:buffer when:when];
+                          IOSAudioRecorderWithAEC *strongSelf = weakSelf;
+                          if (strongSelf) {
+                            [strongSelf processMicrophoneBuffer:buffer when:when];
+                          }
                         }];
 
   // Install tap on main mixer for output processing
@@ -223,7 +227,10 @@ void IOSAudioRecorderWithAEC::setupAudioEngine()
                        bufferSize:1024
                            format:voiceIOFormat_
                             block:^(AVAudioPCMBuffer *buffer, AVAudioTime *when) {
-                              [self processOutputBuffer:buffer when:when];
+                              IOSAudioRecorderWithAEC *strongSelf = weakSelf;
+                              if (strongSelf) {
+                                [strongSelf processOutputBuffer:buffer when:when];
+                              }
                             }];
 
   // Prepare the engine
