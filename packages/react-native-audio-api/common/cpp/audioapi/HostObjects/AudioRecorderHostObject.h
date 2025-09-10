@@ -8,6 +8,7 @@
 #include <audioapi/HostObjects/RecorderAdapterNodeHostObject.h>
 
 #ifdef ANDROID
+#include <jni.h>
 #include <audioapi/android/core/AndroidAudioRecorder.h>
 #include <audioapi/android/core/AndroidAudioRecorderWithAEC.h>
 #else
@@ -30,9 +31,12 @@ class AudioRecorderHostObject : public JsiHostObject {
       const std::shared_ptr<AudioEventHandlerRegistry> &audioEventHandlerRegistry,
       float sampleRate,
       int bufferLength,
-      bool enableAEC = false,
-      jobject audioManager = nullptr,
-      jobject context = nullptr) {
+      bool enableAEC = false
+#ifdef ANDROID
+      , jobject audioManager = nullptr,
+      jobject context = nullptr
+#endif
+      ) {
 #ifdef ANDROID
     if (enableAEC && audioManager != nullptr && context != nullptr) {
       audioRecorder_ = std::make_shared<AndroidAudioRecorderWithAEC>(

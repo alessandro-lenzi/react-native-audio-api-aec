@@ -66,7 +66,7 @@ class AudioAPIModuleInstaller {
           std::shared_ptr<AudioContext> audioContext;
           auto sampleRate = static_cast<float>(args[0].getNumber());
           auto initSuspended = args[1].getBool();
-          auto enableAEC = args.size() > 2 ? args[2].getBool() : false;
+          auto enableAEC = count > 2 ? args[2].getBool() : false;
           audioContext = std::make_shared<AudioContext>(sampleRate, initSuspended, audioEventHandlerRegistry, enableAEC);
 
           auto audioContextHostObject = std::make_shared<AudioContextHostObject>(

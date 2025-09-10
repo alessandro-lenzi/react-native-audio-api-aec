@@ -211,15 +211,11 @@ void IOSAudioRecorderWithAEC::setupAudioEngine()
   [inputNode_ setVoiceProcessingInputMuted:!isRecording_.load()];
 
   // Install tap on input node for microphone processing
-  __weak IOSAudioRecorderWithAEC *weakSelf = this;
   [inputNode_ installTapOnBus:0
                    bufferSize:1024
                        format:voiceIOFormat_
                         block:^(AVAudioPCMBuffer *buffer, AVAudioTime *when) {
-                          IOSAudioRecorderWithAEC *strongSelf = weakSelf;
-                          if (strongSelf) {
-                            [strongSelf processMicrophoneBuffer:buffer when:when];
-                          }
+                          this->processMicrophoneBuffer(buffer, when);
                         }];
 
   // Install tap on main mixer for output processing
@@ -227,10 +223,7 @@ void IOSAudioRecorderWithAEC::setupAudioEngine()
                        bufferSize:1024
                            format:voiceIOFormat_
                             block:^(AVAudioPCMBuffer *buffer, AVAudioTime *when) {
-                              IOSAudioRecorderWithAEC *strongSelf = weakSelf;
-                              if (strongSelf) {
-                                [strongSelf processOutputBuffer:buffer when:when];
-                              }
+                              this->processOutputBuffer(buffer, when);
                             }];
 
   // Prepare the engine
