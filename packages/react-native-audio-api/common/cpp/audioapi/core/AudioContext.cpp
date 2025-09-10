@@ -14,8 +14,11 @@ AudioContext::AudioContext(
     float sampleRate,
     bool initSuspended,
     const std::shared_ptr<IAudioEventHandlerRegistry>
-        &audioEventHandlerRegistry)
-    : BaseAudioContext(audioEventHandlerRegistry) {
+        &audioEventHandlerRegistry,
+    bool enableAEC)
+    : BaseAudioContext(audioEventHandlerRegistry),
+      aecEnabled_(enableAEC),
+      aecAvailable_(false) {
 #ifdef ANDROID
   audioPlayer_ = std::make_shared<AudioPlayer>(
       this->renderAudio(), sampleRate, destination_->getChannelCount());
@@ -104,6 +107,20 @@ AudioContext::renderAudio() {
 
 bool AudioContext::isDriverRunning() const {
   return audioPlayer_->isRunning();
+}
+
+void AudioContext::setAECEnabled(bool enabled) {
+  aecEnabled_ = enabled;
+  // AEC implementation would be platform-specific
+  // For now, just store the state
+}
+
+bool AudioContext::isAECAvailable() const {
+  return aecAvailable_;
+}
+
+bool AudioContext::isAECEnabled() const {
+  return aecEnabled_;
 }
 
 } // namespace audioapi

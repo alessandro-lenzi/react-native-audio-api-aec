@@ -41,14 +41,14 @@ class AndroidAudioRecorderWithAEC : public AudioRecorder {
     jobject audioRecord_;
     jobject acousticEchoCanceler_;
     jobject noiseSuppressor_;
-    
+
     std::thread recordingThread_;
     std::atomic<bool> shouldStop_;
     std::atomic<bool> aecEnabled_;
     std::atomic<bool> aecAvailable_;
-    
+
     mutable std::mutex audioRecordMutex_;
-    
+
     // JNI method IDs (cached for performance)
     jmethodID audioRecordConstructor_;
     jmethodID audioRecordStartRecording_;
@@ -58,20 +58,20 @@ class AndroidAudioRecorderWithAEC : public AudioRecorder {
     jmethodID audioRecordGetAudioSessionId_;
     jmethodID audioRecordGetRecordingState_;
     jmethodID audioRecordGetState_;
-    
+
     jmethodID acousticEchoCancelerIsAvailable_;
     jmethodID acousticEchoCancelerCreate_;
     jmethodID acousticEchoCancelerSetEnabled_;
     jmethodID acousticEchoCancelerRelease_;
-    
+
     jmethodID noiseSuppressorIsAvailable_;
     jmethodID noiseSuppressorCreate_;
     jmethodID noiseSuppressorSetEnabled_;
     jmethodID noiseSuppressorRelease_;
-    
+
     jmethodID audioManagerGetProperty_;
     jmethodID audioManagerGenerateAudioSessionId_;
-    
+
     // Constants
     static constexpr int SAMPLE_RATE = 24000;
     static constexpr int AUDIO_FORMAT = 2; // AudioFormat.ENCODING_PCM_16BIT

@@ -29,7 +29,9 @@ void AudioAPIModule::registerNatives() {
   registerHybrid({
       makeNativeMethod("initHybrid", AudioAPIModule::initHybrid),
       makeNativeMethod("injectJSIBindings", AudioAPIModule::injectJSIBindings),
-      makeNativeMethod("injectJSIBindingsWithContext", AudioAPIModule::injectJSIBindingsWithContext),
+      makeNativeMethod(
+          "injectJSIBindingsWithContext",
+          AudioAPIModule::injectJSIBindingsWithContext),
       makeNativeMethod(
           "invokeHandlerWithEventNameAndEventBody",
           AudioAPIModule::invokeHandlerWithEventNameAndEventBody),
@@ -46,9 +48,13 @@ void AudioAPIModule::injectJSIBindingsWithContext(
     jni::alias_ref<jni::JObject> audioManager) {
   context_ = make_global(context);
   audioManager_ = make_global(audioManager);
-  
+
   AudioAPIModuleInstaller::injectJSIBindingsWithContext(
-      jsiRuntime_, jsCallInvoker_, audioEventHandlerRegistry_, context_.get(), audioManager_.get());
+      jsiRuntime_,
+      jsCallInvoker_,
+      audioEventHandlerRegistry_,
+      context_.get(),
+      audioManager_.get());
 }
 
 void AudioAPIModule::invokeHandlerWithEventNameAndEventBody(

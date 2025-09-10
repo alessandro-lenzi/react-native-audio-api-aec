@@ -28,6 +28,7 @@ export interface PeriodicWaveConstraints {
 export interface AudioContextOptions {
   sampleRate?: number;
   initSuspended?: boolean;
+  enableAEC?: boolean;
 }
 
 export interface OfflineAudioContextOptions {

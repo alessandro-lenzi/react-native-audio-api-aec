@@ -33,7 +33,12 @@ class AudioAPIModuleInstaller {
   }
 
 #ifdef ANDROID
-  static void injectJSIBindingsWithContext(jsi::Runtime *jsiRuntime, const std::shared_ptr<react::CallInvoker> &jsCallInvoker, const std::shared_ptr<AudioEventHandlerRegistry> &audioEventHandlerRegistry, jobject context, jobject audioManager) {
+  static void injectJSIBindingsWithContext(
+      jsi::Runtime *jsiRuntime,
+      const std::shared_ptr<react::CallInvoker> &jsCallInvoker,
+      const std::shared_ptr<AudioEventHandlerRegistry> &audioEventHandlerRegistry,
+      jobject context,
+      jobject audioManager) {
     auto createAudioContext = getCreateAudioContextFunction(jsiRuntime, jsCallInvoker, audioEventHandlerRegistry);
     auto createAudioRecorder = getCreateAudioRecorderWithContextFunction(jsiRuntime, audioEventHandlerRegistry, context, audioManager);
     auto createOfflineAudioContext = getCreateOfflineAudioContextFunction(jsiRuntime, jsCallInvoker, audioEventHandlerRegistry);
@@ -61,7 +66,8 @@ class AudioAPIModuleInstaller {
           std::shared_ptr<AudioContext> audioContext;
           auto sampleRate = static_cast<float>(args[0].getNumber());
           auto initSuspended = args[1].getBool();
-          audioContext = std::make_shared<AudioContext>(sampleRate, initSuspended, audioEventHandlerRegistry);
+          auto enableAEC = args.size() > 2 ? args[2].getBool() : false;
+          audioContext = std::make_shared<AudioContext>(sampleRate, initSuspended, audioEventHandlerRegistry, enableAEC);
 
           auto audioContextHostObject = std::make_shared<AudioContextHostObject>(
               audioContext, &runtime, jsCallInvoker);

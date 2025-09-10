@@ -21,7 +21,10 @@ class AudioContextHostObject : public BaseAudioContextHostObject {
     addFunctions(
       JSI_EXPORT_FUNCTION(AudioContextHostObject, close),
       JSI_EXPORT_FUNCTION(AudioContextHostObject, resume),
-      JSI_EXPORT_FUNCTION(AudioContextHostObject, suspend));
+      JSI_EXPORT_FUNCTION(AudioContextHostObject, suspend),
+      JSI_EXPORT_FUNCTION(AudioContextHostObject, setAECEnabled),
+      JSI_EXPORT_FUNCTION(AudioContextHostObject, isAECAvailable),
+      JSI_EXPORT_FUNCTION(AudioContextHostObject, isAECEnabled));
   }
 
   JSI_HOST_FUNCTION(close) {
@@ -61,6 +64,23 @@ class AudioContextHostObject : public BaseAudioContextHostObject {
     });
 
     return promise;
+  }
+
+  JSI_HOST_FUNCTION(setAECEnabled) {
+    auto audioContext = std::static_pointer_cast<AudioContext>(context_);
+    bool enabled = args[0].getBool();
+    audioContext->setAECEnabled(enabled);
+    return jsi::Value::undefined();
+  }
+
+  JSI_HOST_FUNCTION(isAECAvailable) {
+    auto audioContext = std::static_pointer_cast<AudioContext>(context_);
+    return jsi::Value(audioContext->isAECAvailable());
+  }
+
+  JSI_HOST_FUNCTION(isAECEnabled) {
+    auto audioContext = std::static_pointer_cast<AudioContext>(context_);
+    return jsi::Value(audioContext->isAECEnabled());
   }
 };
 } // namespace audioapi

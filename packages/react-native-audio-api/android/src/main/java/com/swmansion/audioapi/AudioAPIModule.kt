@@ -33,8 +33,11 @@ class AudioAPIModule(
   ): HybridData
 
   private external fun injectJSIBindings()
-  
-  private external fun injectJSIBindingsWithContext(context: Context, audioManager: AudioManager)
+
+  private external fun injectJSIBindingsWithContext(
+    context: Context,
+    audioManager: AudioManager,
+  )
 
   external fun invokeHandlerWithEventNameAndEventBody(
     eventName: String,
@@ -53,11 +56,11 @@ class AudioAPIModule(
 
   override fun install(): Boolean {
     MediaSessionManager.initialize(WeakReference(this), reactContext)
-    
+
     // Get Android context and AudioManager for AEC support
     val context = reactContext.get()
     val audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-    
+
     if (context != null && audioManager != null) {
       injectJSIBindingsWithContext(context, audioManager)
     } else {

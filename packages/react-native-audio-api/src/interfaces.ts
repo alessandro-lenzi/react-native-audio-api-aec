@@ -39,6 +39,11 @@ export interface IBaseAudioContext {
     playbackRate: number
   ) => Promise<IAudioBuffer>;
   createStreamer: () => IStreamerNode;
+
+  // AEC methods (available when enableAEC is true)
+  setAECEnabled?: (enabled: boolean) => void;
+  isAECAvailable?: () => boolean;
+  isAECEnabled?: () => boolean;
 }
 
 export interface IAudioContext extends IBaseAudioContext {
