@@ -9,8 +9,10 @@
 
 #ifdef ANDROID
 #include <audioapi/android/core/AndroidAudioRecorder.h>
+#include <audioapi/android/core/AndroidAudioRecorderWithAEC.h>
 #else
 #include <audioapi/ios/core/IOSAudioRecorder.h>
+#include <audioapi/ios/core/IOSAudioRecorderWithAEC.h>
 #endif
 
 #include <memory>
@@ -27,19 +29,40 @@ class AudioRecorderHostObject : public JsiHostObject {
       jsi::Runtime *runtime,
       const std::shared_ptr<AudioEventHandlerRegistry> &audioEventHandlerRegistry,
       float sampleRate,
-      int bufferLength) {
+      int bufferLength,
+      bool enableAEC = false,
+      jobject audioManager = nullptr,
+      jobject context = nullptr) {
 #ifdef ANDROID
-    audioRecorder_ = std::make_shared<AndroidAudioRecorder>(
-      sampleRate,
-      bufferLength,
-      audioEventHandlerRegistry
-    );
+    if (enableAEC && audioManager != nullptr && context != nullptr) {
+      audioRecorder_ = std::make_shared<AndroidAudioRecorderWithAEC>(
+        sampleRate,
+        bufferLength,
+        audioEventHandlerRegistry,
+        audioManager,
+        context
+      );
+    } else {
+      audioRecorder_ = std::make_shared<AndroidAudioRecorder>(
+        sampleRate,
+        bufferLength,
+        audioEventHandlerRegistry
+      );
+    }
 #else
-  audioRecorder_ = std::make_shared<IOSAudioRecorder>(
-      sampleRate,
-      bufferLength,
-      audioEventHandlerRegistry
-    );
+    if (enableAEC) {
+      audioRecorder_ = std::make_shared<IOSAudioRecorderWithAEC>(
+        sampleRate,
+        bufferLength,
+        audioEventHandlerRegistry
+      );
+    } else {
+      audioRecorder_ = std::make_shared<IOSAudioRecorder>(
+        sampleRate,
+        bufferLength,
+        audioEventHandlerRegistry
+      );
+    }
 #endif
 
     addSetters(JSI_EXPORT_PROPERTY_SETTER(AudioRecorderHostObject, onAudioReady));
@@ -48,7 +71,10 @@ class AudioRecorderHostObject : public JsiHostObject {
       JSI_EXPORT_FUNCTION(AudioRecorderHostObject, start),
       JSI_EXPORT_FUNCTION(AudioRecorderHostObject, stop),
       JSI_EXPORT_FUNCTION(AudioRecorderHostObject, connect),
-      JSI_EXPORT_FUNCTION(AudioRecorderHostObject, disconnect)
+      JSI_EXPORT_FUNCTION(AudioRecorderHostObject, disconnect),
+      JSI_EXPORT_FUNCTION(AudioRecorderHostObject, setAECEnabled),
+      JSI_EXPORT_FUNCTION(AudioRecorderHostObject, isAECAvailable),
+      JSI_EXPORT_FUNCTION(AudioRecorderHostObject, isAECEnabled)
     );
   }
 
@@ -78,6 +104,53 @@ class AudioRecorderHostObject : public JsiHostObject {
 
   JSI_PROPERTY_SETTER(onAudioReady) {
     audioRecorder_->setOnAudioReadyCallbackId(std::stoull(value.getString(runtime).utf8(runtime)));
+  }
+
+  JSI_HOST_FUNCTION(setAECEnabled) {
+#ifdef ANDROID
+    auto aecRecorder = std::dynamic_pointer_cast<AndroidAudioRecorderWithAEC>(audioRecorder_);
+    if (aecRecorder) {
+      bool enabled = args[0].getBool();
+      aecRecorder->setAECEnabled(enabled);
+    }
+#else
+    auto aecRecorder = std::dynamic_pointer_cast<IOSAudioRecorderWithAEC>(audioRecorder_);
+    if (aecRecorder) {
+      bool enabled = args[0].getBool();
+      aecRecorder->setAECEnabled(enabled);
+    }
+#endif
+    return jsi::Value::undefined();
+  }
+
+  JSI_HOST_FUNCTION(isAECAvailable) {
+#ifdef ANDROID
+    auto aecRecorder = std::dynamic_pointer_cast<AndroidAudioRecorderWithAEC>(audioRecorder_);
+    if (aecRecorder) {
+      return jsi::Value(aecRecorder->isAECAvailable());
+    }
+#else
+    auto aecRecorder = std::dynamic_pointer_cast<IOSAudioRecorderWithAEC>(audioRecorder_);
+    if (aecRecorder) {
+      return jsi::Value(aecRecorder->isAECAvailable());
+    }
+#endif
+    return jsi::Value(false);
+  }
+
+  JSI_HOST_FUNCTION(isAECEnabled) {
+#ifdef ANDROID
+    auto aecRecorder = std::dynamic_pointer_cast<AndroidAudioRecorderWithAEC>(audioRecorder_);
+    if (aecRecorder) {
+      return jsi::Value(aecRecorder->isAECEnabled());
+    }
+#else
+    auto aecRecorder = std::dynamic_pointer_cast<IOSAudioRecorderWithAEC>(audioRecorder_);
+    if (aecRecorder) {
+      return jsi::Value(aecRecorder->isAECEnabled());
+    }
+#endif
+    return jsi::Value(false);
   }
 
  private:

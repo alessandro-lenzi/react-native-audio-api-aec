@@ -30,6 +30,7 @@ class AudioAPIModule : public jni::HybridClass<AudioAPIModule> {
   static void registerNatives();
 
   void injectJSIBindings();
+  void injectJSIBindingsWithContext(jni::alias_ref<jni::JObject> context, jni::alias_ref<jni::JObject> audioManager);
   void invokeHandlerWithEventNameAndEventBody(jni::alias_ref<jni::JString> eventName, jni::alias_ref<jni::JMap<jstring, jobject>> eventBody);
 
  private:
@@ -39,6 +40,8 @@ class AudioAPIModule : public jni::HybridClass<AudioAPIModule> {
   jsi::Runtime *jsiRuntime_;
   std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker_;
   std::shared_ptr<AudioEventHandlerRegistry> audioEventHandlerRegistry_;
+  jni::global_ref<jni::JObject> context_;
+  jni::global_ref<jni::JObject> audioManager_;
 
   explicit AudioAPIModule(
       jni::alias_ref<AudioAPIModule::jhybridobject> &jThis,

@@ -39,6 +39,7 @@ export interface OfflineAudioContextOptions {
 export interface AudioRecorderOptions {
   sampleRate: number;
   bufferLengthInSamples: number;
+  enableAEC?: boolean;
 }
 
 export type WindowType = 'blackman' | 'hann';

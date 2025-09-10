@@ -1,5 +1,7 @@
 package com.swmansion.audioapi
 
+import android.content.Context
+import android.media.AudioManager
 import com.facebook.jni.HybridData
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -31,6 +33,8 @@ class AudioAPIModule(
   ): HybridData
 
   private external fun injectJSIBindings()
+  
+  private external fun injectJSIBindingsWithContext(context: Context, audioManager: AudioManager)
 
   external fun invokeHandlerWithEventNameAndEventBody(
     eventName: String,
@@ -49,7 +53,16 @@ class AudioAPIModule(
 
   override fun install(): Boolean {
     MediaSessionManager.initialize(WeakReference(this), reactContext)
-    injectJSIBindings()
+    
+    // Get Android context and AudioManager for AEC support
+    val context = reactContext.get()
+    val audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    
+    if (context != null && audioManager != null) {
+      injectJSIBindingsWithContext(context, audioManager)
+    } else {
+      injectJSIBindings()
+    }
 
     return true
   }

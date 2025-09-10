@@ -32,6 +32,21 @@ class AudioAPIModuleInstaller {
     jsiRuntime->global().setProperty(*jsiRuntime, "AudioEventEmitter", jsi::Object::createFromHostObject(*jsiRuntime, audioEventHandlerRegistryHostObject));
   }
 
+#ifdef ANDROID
+  static void injectJSIBindingsWithContext(jsi::Runtime *jsiRuntime, const std::shared_ptr<react::CallInvoker> &jsCallInvoker, const std::shared_ptr<AudioEventHandlerRegistry> &audioEventHandlerRegistry, jobject context, jobject audioManager) {
+    auto createAudioContext = getCreateAudioContextFunction(jsiRuntime, jsCallInvoker, audioEventHandlerRegistry);
+    auto createAudioRecorder = getCreateAudioRecorderWithContextFunction(jsiRuntime, audioEventHandlerRegistry, context, audioManager);
+    auto createOfflineAudioContext = getCreateOfflineAudioContextFunction(jsiRuntime, jsCallInvoker, audioEventHandlerRegistry);
+
+    jsiRuntime->global().setProperty(*jsiRuntime, "createAudioContext", createAudioContext);
+    jsiRuntime->global().setProperty(*jsiRuntime, "createAudioRecorder", createAudioRecorder);
+    jsiRuntime->global().setProperty(*jsiRuntime, "createOfflineAudioContext", createOfflineAudioContext);
+
+    auto audioEventHandlerRegistryHostObject = std::make_shared<AudioEventHandlerRegistryHostObject>(audioEventHandlerRegistry);
+    jsiRuntime->global().setProperty(*jsiRuntime, "AudioEventEmitter", jsi::Object::createFromHostObject(*jsiRuntime, audioEventHandlerRegistryHostObject));
+  }
+#endif
+
  private:
   static jsi::Function getCreateAudioContextFunction(jsi::Runtime *jsiRuntime, const std::shared_ptr<react::CallInvoker> &jsCallInvoker, const std::shared_ptr<AudioEventHandlerRegistry> &audioEventHandlerRegistry) {
     return jsi::Function::createFromHostFunction(
@@ -93,12 +108,37 @@ class AudioAPIModuleInstaller {
 
           auto sampleRate = static_cast<float>(options.getProperty(runtime, "sampleRate").getNumber());
           auto bufferLength = static_cast<int>(options.getProperty(runtime, "bufferLengthInSamples").getNumber());
+          auto enableAEC = options.hasProperty(runtime, "enableAEC") ? options.getProperty(runtime, "enableAEC").getBool() : false;
 
-          auto audioRecorderHostObject = std::make_shared<AudioRecorderHostObject>(&runtime, audioEventHandlerRegistry, sampleRate, bufferLength);
+          auto audioRecorderHostObject = std::make_shared<AudioRecorderHostObject>(&runtime, audioEventHandlerRegistry, sampleRate, bufferLength, enableAEC);
 
           return jsi::Object::createFromHostObject(runtime, audioRecorderHostObject);
         });
   }
+
+#ifdef ANDROID
+  static jsi::Function getCreateAudioRecorderWithContextFunction(jsi::Runtime *jsiRuntime, const std::shared_ptr<AudioEventHandlerRegistry> &audioEventHandlerRegistry, jobject context, jobject audioManager) {
+    return jsi::Function::createFromHostFunction(
+        *jsiRuntime,
+        jsi::PropNameID::forAscii(*jsiRuntime, "createAudioRecorder"),
+        0,
+        [audioEventHandlerRegistry, context, audioManager](
+            jsi::Runtime &runtime,
+            const jsi::Value &thisValue,
+            const jsi::Value *args,
+            size_t count) -> jsi::Value {
+          auto options = args[0].getObject(runtime);
+
+          auto sampleRate = static_cast<float>(options.getProperty(runtime, "sampleRate").getNumber());
+          auto bufferLength = static_cast<int>(options.getProperty(runtime, "bufferLengthInSamples").getNumber());
+          auto enableAEC = options.hasProperty(runtime, "enableAEC") ? options.getProperty(runtime, "enableAEC").getBool() : false;
+
+          auto audioRecorderHostObject = std::make_shared<AudioRecorderHostObject>(&runtime, audioEventHandlerRegistry, sampleRate, bufferLength, enableAEC, audioManager, context);
+
+          return jsi::Object::createFromHostObject(runtime, audioRecorderHostObject);
+        });
+  }
+#endif
 };
 
 } // namespace audioapi

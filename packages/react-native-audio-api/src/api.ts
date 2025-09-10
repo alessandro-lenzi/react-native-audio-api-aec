@@ -78,3 +78,9 @@ export {
   RangeError,
   NotSupportedError,
 } from './errors';
+
+// Export global functions
+export const createAudioContext = global.createAudioContext!;
+export const createOfflineAudioContext = global.createOfflineAudioContext!;
+export const createAudioRecorder = global.createAudioRecorder!;
+export const AudioEventEmitter = global.AudioEventEmitter!;
