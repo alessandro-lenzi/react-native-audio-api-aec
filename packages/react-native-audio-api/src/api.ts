@@ -11,7 +11,8 @@ import type {
 declare global {
   var createAudioContext: (
     sampleRate: number,
-    initSuspended: boolean
+    initSuspended: boolean,
+    enableAEC?: boolean
   ) => IAudioContext;
   var createOfflineAudioContext: (
     numberOfChannels: number,
@@ -78,3 +79,9 @@ export {
   RangeError,
   NotSupportedError,
 } from './errors';
+
+// Export global functions
+export const createAudioContext = global.createAudioContext;
+export const createOfflineAudioContext = global.createOfflineAudioContext;
+export const createAudioRecorder = global.createAudioRecorder;
+export const AudioEventEmitter = global.AudioEventEmitter;

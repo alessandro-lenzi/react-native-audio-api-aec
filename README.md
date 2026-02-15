@@ -56,6 +56,10 @@ check out the [Getting Started](https://docs.swmansion.com/react-native-audio-ap
   **Custom Audio Processor** ⚙️ <br />
     Write your own processing AudioNode <br />
 
+- <sub>[![Released in 0.9.0](https://img.shields.io/badge/Released_in-0.9.0-green)](https://github.com/software-mansion/react-native-audio-api/releases/tag/0.9.0)</sub> <br />
+  **Acoustic Echo Cancellation (AEC)** 🔇 <br />
+    Native Android AEC support using AcousticEchoCanceler API to reduce echo and feedback in audio recording <br />
+
 - <sub>[![Released in 0.8.0](https://img.shields.io/badge/Released_in-0.8.0-green)](https://github.com/software-mansion/react-native-audio-api/releases/tag/0.8.0)</sub> <br />
   **Decoding support for m4a/mp4/aac/ogg/opus** 📁 <br />
   Ability to decode m4a/mp4/aac/ogg/opus audio files, allowing for playback of these formats in the audio graph. <br />

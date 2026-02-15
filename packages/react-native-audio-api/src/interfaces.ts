@@ -39,6 +39,11 @@ export interface IBaseAudioContext {
     playbackRate: number
   ) => Promise<IAudioBuffer>;
   createStreamer: () => IStreamerNode;
+
+  // AEC methods (available when enableAEC is true)
+  setAECEnabled?: (enabled: boolean) => void;
+  isAECAvailable?: () => boolean;
+  isAECEnabled?: () => boolean;
 }
 
 export interface IAudioContext extends IBaseAudioContext {
@@ -208,6 +213,11 @@ export interface IAudioRecorder {
 
   // passing subscriptionId(uint_64 in cpp, string in js) to the cpp
   onAudioReady: string;
+
+  // AEC methods (available when enableAEC is true)
+  setAECEnabled?: (enabled: boolean) => void;
+  isAECAvailable?: () => boolean;
+  isAECEnabled?: () => boolean;
 }
 
 export interface IAudioEventEmitter {

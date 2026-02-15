@@ -28,6 +28,7 @@ export interface PeriodicWaveConstraints {
 export interface AudioContextOptions {
   sampleRate?: number;
   initSuspended?: boolean;
+  enableAEC?: boolean;
 }
 
 export interface OfflineAudioContextOptions {
@@ -39,6 +40,7 @@ export interface OfflineAudioContextOptions {
 export interface AudioRecorderOptions {
   sampleRate: number;
   bufferLengthInSamples: number;
+  enableAEC?: boolean;
 }
 
 export type WindowType = 'blackman' | 'hann';

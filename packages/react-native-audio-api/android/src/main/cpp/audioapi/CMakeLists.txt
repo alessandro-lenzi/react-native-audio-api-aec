@@ -46,6 +46,7 @@ set(LINK_LIBRARIES
   android
   log
   oboe::oboe
+  jni
 )
 
 set(RN_VERSION_LINK_LIBRARIES
